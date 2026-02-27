@@ -47,6 +47,24 @@ customElements.define('lotto-ball', LottoBall);
 
 const generateButton = document.getElementById('generate-button');
 const lottoNumbersContainer = document.getElementById('lotto-numbers-container');
+const themeButton = document.getElementById('theme-button');
+const themeIcon = themeButton.querySelector('.icon');
+
+// Theme logic
+const currentTheme = localStorage.getItem('theme') || 'light';
+document.documentElement.setAttribute('data-theme', currentTheme);
+updateThemeIcon(currentTheme);
+
+themeButton.addEventListener('click', () => {
+    const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+});
+
+function updateThemeIcon(theme) {
+    themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
 
 generateButton.addEventListener('click', () => {
     lottoNumbersContainer.innerHTML = '';
