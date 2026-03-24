@@ -13,80 +13,75 @@ setGlobalOptions({
   region: 'asia-northeast3'
 });
 
-// --- Helper Functions (수정된 안전한 버전) ---
 function getVideoIdFromUrl(url) {
   if (!url) return null;
-  // 정규표현식을 더 간결하고 안전하게 수정했습니다.
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|\/v\/|embed\/))([^?& \n]+)/);
   return match ? match[1] : null;
 }
 
-function intelligentParse(description, transcript, comments) {
+function intelligentParse(description, transcript) {
     const recipes = [];
-    const fullText = `${description}\n${transcript}\n${comments}`;
-    const sectionRegex = /(?:\[|【)([^\]】]+)(?:\]|】)\\s*([\\s\\S]*?)(?=(?:\[|【)|$)/g;
+    const fullText = `${description || ''}\n${transcript || ''}`;
+    // [ ] 나 【 】 로 구분된 섹션을 찾는 로직 (수정된 정규표현식)
+    const sectionRegex = new RegExp('(?:\\[|【)([^\\]】]+)(?:\]|】)\\s*([\\s\\S]*?)(?=(?:\\[|【)|$)', 'g');
     let match;
     while ((match = sectionRegex.exec(fullText)) !== null) {
         recipes.push({ title: match[1].trim(), content: match[2].trim() });
     }
-    if (recipes.length === 0 && fullText.length > 100) {
-        recipes.push({ title: "추출된 레시피", content: fullText.substring(0, 2000) });
+    // 만약 구분자가 없더라도 내용이 길면 통째로 반환
+    if (recipes.length === 0 && fullText.length > 20) {
+        recipes.push({ title: "추출된 레시피 정보", content: fullText.trim() });
     }
     return recipes;
 }
 
-// --- Main Function ---
 export const extractRecipe = onRequest({ cors: true }, async (req, res) => {
-    // CORS 설정을 가장 확실하게 강제합니다.
+    // CORS 강제 허용
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    if (req.method === 'OPTIONS') {
-        res.status(204).send('');
-        return;
-    }
+    if (req.method === 'OPTIONS') return res.status(204).send('');
 
     try {
         const { url } = req.body;
-        if (!url) {
-            return res.status(400).json({ error: 'URL is required.' });
-        }
-
         const videoId = getVideoIdFromUrl(url);
-        if (!videoId) {
-            return res.status(400).json({ error: 'Invalid YouTube URL.' });
-        }
+        if (!videoId) return res.status(400).json({ error: 'URL 주소가 올바르지 않습니다.' });
 
         const youtubeClient = youtube({ version: 'v3', auth: youtubeApiKey.value() });
-        
         const videoResponse = await youtubeClient.videos.list({
-            part: ['snippet', 'contentDetails'],
+            part: ['snippet'],
             id: [videoId]
         });
+        
         const videoItem = videoResponse.data.items?.[0];
-        const videoTitle = videoItem?.snippet?.title || 'Unknown Video';
         const description = videoItem?.snippet?.description || '';
+        const videoTitle = videoItem?.snippet?.title || '';
 
+        // --- 자막 추출 (에러 방어막 강화) ---
         let transcript = '';
         try {
             const transcriptData = await YoutubeTranscript.fetchTranscript(videoId);
-            transcript = transcriptData.map(t => t.text).join(' ');
+            // transcriptData가 존재하고 배열인 경우에만 map을 실행합니다.
+            if (transcriptData && Array.isArray(transcriptData)) {
+                transcript = transcriptData.map(t => t.text).join(' ');
+            }
         } catch (e) {
-            logger.warn(`No transcript for ${videoId}`);
+            logger.warn(`자막을 가져올 수 없습니다: ${videoId}`);
         }
 
-        const foundRecipes = intelligentParse(description, transcript, '');
+        const foundRecipes = intelligentParse(description, transcript);
 
         if (foundRecipes.length > 0) {
+            // 제목이 비어있으면 영상 제목으로 채워줍니다.
             foundRecipes.forEach(r => { if (!r.title) r.title = videoTitle; });
             return res.status(200).json({ recipes: foundRecipes });
         } else {
-            return res.status(404).json({ error: 'Recipe not found.' });
+            return res.status(404).json({ error: '레시피 정보를 찾을 수 없습니다.' });
         }
 
     } catch (error) {
         logger.error('Error:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: "서버 연결에 실패했습니다." });
     }
 });
