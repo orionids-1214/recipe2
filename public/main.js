@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
 
   const recipeForm = document.getElementById('recipe-form');
@@ -7,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const recipeContentEl = document.getElementById('recipe-content');
   const historyListEl = document.getElementById('history-list');
 
-  const API_ENDPOINT = 'https://asia-northeast3-orionids-app-52994581-a7885.cloudfunctions.net/extractRecipe';
+  const API_ENDPOINT = 'https://extractrecipe-drppnw3lma-du.a.run.app';
 
   // --- Functions ---
 
