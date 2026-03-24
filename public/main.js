@@ -25,37 +25,33 @@ document.addEventListener('DOMContentLoaded', () => {
     recipeContentEl.innerHTML = `<div class="error-message">${message}</div>`;
   };
 
+  // [MODIFIED] Updated function to display recipes in the new format {title, content}
   const displayRecipes = (recipes) => {
     if (!recipes || recipes.length === 0) {
       displayError("레시피를 찾을 수 없습니다.");
       return;
     }
-    const recipeHTML = recipes.map(recipe => `
+    const recipeHTML = recipes.map(recipe => {
+      // Sanitize content to prevent basic HTML injection
+      const sanitizedContent = recipe.content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return `
       <div class="recipe-card">
-        <h3>${recipe.title || '레시피'}</h3>
+        <h3>${recipe.title || '추출된 레시피'}</h3>
         <div class="recipe-section">
-          <h4><i class="fas fa-carrot"></i> 재료</h4>
-          <ul>
-            ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}
-          </ul>
-        </div>
-        <div class="recipe-section">
-          <h4><i class="fas fa-blender"></i> 만드는 법</h4>
-          <ol>
-            ${recipe.instructions.map(step => `<li>${step}</li>`).join('')}
-          </ol>
+          {/* Using a <pre> tag preserves line breaks and formatting from the backend */}
+          <pre class="recipe-full-content">${sanitizedContent}</pre>
         </div>
       </div>
-    `).join('');
+    `}).join('');
     recipeContentEl.innerHTML = recipeHTML;
   };
   
   const saveToHistory = (url, title) => {
       let history = JSON.parse(localStorage.getItem('recipeHistory')) || [];
-      // 중복 제거
+      // Remove duplicates
       history = history.filter(item => item.url !== url);
       history.unshift({ url, title: title || url, date: new Date().toISOString() });
-      // 최근 5개만 저장
+      // Keep only the last 5 items
       history = history.slice(0, 5); 
       localStorage.setItem('recipeHistory', JSON.stringify(history));
       loadHistory();
