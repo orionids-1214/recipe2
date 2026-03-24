@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube 레시피 추출기</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1><i class="fa-solid fa-wand-magic-sparkles"></i> YouTube 레시피 추출기</h1>
+            <p>YouTube 동영상 URL만으로 간편하게 레시피를 추출하세요.</p>
+        </header>
+
+        <div class="input-section">
+            <form id="recipe-form">
+                <input type="url" id="youtube-url" placeholder="여기에 YouTube URL을 붙여넣으세요..." required>
+                <button type="submit" id="extract-button">레시피 추출</button>
+            </form>
+        </div>
+
+        <main class="main-content">
+            <!-- Left Column: History -->
+            <div class="card" id="history-card">
+                <div class="card-header"><h2><i class="fas fa-clock-rotate-left"></i> 추출 기록</h2></div>
+                <div id="history-list" class="card-content">
+                   <p class="initial-message">추출된 레시피 기록이 여기에 표시됩니다.</p>
+                </div>
+            </div>
+
+            <!-- Middle Column: Table of Contents -->
+            <div class="card" id="toc-card">
+                <div class="card-header"><h2><i class="fas fa-stream"></i> 레시피 목차</h2></div>
+                <div id="toc-list" class="card-content">
+                     <p class="initial-message">레시피가 추출되면 이곳에 목차가 표시됩니다.</p>
+                </div>
+            </div>
+
+            <!-- Right Column: Dynamic Recipe Results -->
+            <div class="card" id="recipe-results-container">
+                 <div class="card-header"><h2><i class="fas fa-book-open"></i> 레시피 내용</h2></div>
+                 <div id="recipe-results" class="card-content">
+                    <p class="initial-message">YouTube URL을 입력하고 '레시피 추출' 버튼을 누르면, 이곳에 결과가 표시됩니다.</p>
+                 </div>
+            </div>
+        </main>
+    </div>
+    <script src="main.js?v=final_attempt"></script>
+</body>
+</html>

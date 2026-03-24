@@ -1,42 +1,68 @@
-# Blueprint: YouTube Recipe Extractor
+# **Blueprint: YouTube Recipe Extractor**
 
-## Overview
+## **Overview**
 
-This application allows users to paste a YouTube video URL and extract the recipe and ingredients from it. The app will have a clean, modern interface for inputting the URL and displaying the extracted information in a structured and easy-to-read format.
+This document outlines the architecture, features, and development plan for the "YouTube Recipe Extractor," a web application designed to help users easily pull recipe information from YouTube videos. The application is built with modern, framework-less web technologies and leverages Firebase for backend services.
 
-## Style and Design
+---
 
-*   **Layout:** A centered, single-column layout that is responsive and works well on both mobile and desktop screens.
-*   **Color Palette:** A vibrant and energetic color scheme will be used.
-*   **Typography:** Expressive and clear typography will be used to create a hierarchy for titles, headings, and body text.
-*   **Iconography:** Icons will be used to enhance user understanding and navigation.
-*   **Interactivity:** Interactive elements like buttons and input fields will have a modern look and feel with subtle animations and shadow effects.
-*   **Background:** A subtle texture will be applied to the background to give the app a premium feel.
+## **Project Outline**
 
-## Features
+### **1. Frontend**
 
-*   **YouTube URL Input:** A text field where users can paste the YouTube video link.
-*   **Recipe Extraction Button:** A button to initiate the recipe extraction process.
-*   **Loading State:** A visual indicator to show that the application is processing the video.
-*   **Recipe Display:** A dedicated component to display the extracted recipe, including:
-    *   Video Title
-    *   Thumbnail Image (placeholder)
-    *   List of Ingredients
-    *   Step-by-step Instructions
-*   **Web Components:** The application will be built using modern web standards, including a custom `<recipe-card>` element to encapsulate the recipe display logic and styling.
+*   **Technology:** HTML5, CSS3, Vanilla JavaScript (ESM)
+*   **Core Concepts:**
+    *   **Web Components:** The UI is built using custom elements for modularity and encapsulation (e.g., `<recipe-card>`, `<history-item>`).
+    *   **Responsive Design:** The layout adapts to all screen sizes using modern CSS like container queries and logical properties.
+    *   **Modern Styling:**
+        *   **Font:** Noto Sans KR for clear Korean typography.
+        *   **Color Palette:** Utilizes modern color spaces (`oklch`) for a vibrant and accessible UI. Key colors include a soft background, white cards, and strong accent colors for interactive elements.
+        *   **Effects:** Subtle noise texture on the background, multi-layered drop shadows for depth, and "glow" effects on interactive elements.
+        *   **Icons:** Font Awesome is used for intuitive iconography.
+*   **Key Files:**
+    *   `public/index.html`: Main application structure.
+    *   `public/style.css`: All styling, organized with CSS layers (`@layer`).
+    *   `public/main.js`: Main application logic, module imports, and component definitions.
 
-## Current Plan
+### **2. Backend**
 
-*   **HTML:**
-    *   Update `index.html` to create the main structure for the YouTube Recipe Extractor.
-    *   Add a title, a form with a URL input field, and a submit button.
-    *   Add a container where the extracted recipe will be displayed.
-*   **CSS:**
-    *   Rewrite `style.css` to style the new application.
-    *   Implement a modern and responsive design with a new color palette, typography, and interactive styles.
-    *   Remove all styles related to the previous Lotto Number Generator app.
-*   **JavaScript:**
-    *   Rewrite `main.js` to implement the recipe extraction logic.
-    *   Add an event listener to the form submission.
-    *   Create a `<recipe-card>` web component to display the recipe details.
-    *   Simulate the extraction process and display a sample recipe when the user submits a URL.
+*   **Technology:** Firebase (Cloud Functions)
+*   **Core Concepts:**
+    *   **Serverless Function:** A Node.js function (`extractRecipe`) is deployed to Firebase Cloud Functions.
+    *   **API Endpoint:** The function is triggered by an HTTP request from the frontend, taking a YouTube URL as a parameter.
+    *   **Logic:** The function fetches video details (description, chapters) and uses a combination of heuristics and parsing to identify and structure the recipe ingredients and steps.
+*   **Key Files:**
+    *   `functions/index.js`: The backend Cloud Function code.
+    *   `firebase.json`: Firebase project configuration, including Hosting and Functions setup.
+
+### **3. Features**
+
+*   **`Feature: URL Input and Validation`**
+    *   A prominent input field for the user to paste a YouTube URL.
+    *   Client-side validation to ensure the input is a valid URL format before sending.
+
+*   **`Feature: Recipe Extraction with Loading State`**
+    *   An "Extract Recipe" button triggers a `fetch` call to the backend Firebase Function.
+    *   The button shows a loading spinner and is disabled during the extraction process.
+
+*   **`Feature: Display Recipe`**
+    *   The extracted recipe (title, ingredients, instructions, tips) is rendered dynamically on the page within a dedicated card.
+
+*   **`Feature: History`**
+    *   Previously extracted recipes are saved to the browser's `localStorage`.
+    *   A "History" section displays a list of these past recipes, allowing the user to quickly view them again.
+
+*   **`Feature: Table of Contents`**
+    *   For longer recipes, a "Table of Contents" is automatically generated based on the recipe's sections (e.g., "Ingredients," "Instructions", "Tips"). This allows for quick navigation.
+
+*   **`Feature: Responsive Design`**
+    *   The entire interface is fully responsive, ensuring a seamless experience on desktops, tablets, and mobile devices.
+
+*   **`Feature: Copy and Download`**
+    *   Buttons to copy the recipe to the clipboard or download it as a text file.
+
+---
+
+## **Development Complete**
+
+All planned features have been successfully implemented. The application is now fully functional and meets the initial requirements. The `blueprint.md` file serves as the final documentation for the project.
