@@ -13,19 +13,18 @@ setGlobalOptions({
   region: 'asia-northeast3'
 });
 
-// --- Helper Functions ---
+// --- Helper Functions (수정된 안전한 버전) ---
 function getVideoIdFromUrl(url) {
   if (!url) return null;
-  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\\/|.*[?&]v=)|youtu\.be\/)([^"&? \/]{11})/;
-  const match = url.match(youtubeRegex);
+  // 정규표현식을 더 간결하고 안전하게 수정했습니다.
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|\/v\/|embed\/))([^?& \n]+)/);
   return match ? match[1] : null;
 }
 
-// 추출 로직 (기존 로직 유지)
 function intelligentParse(description, transcript, comments) {
     const recipes = [];
     const fullText = `${description}\n${transcript}\n${comments}`;
-    const sectionRegex = /(?:\[|【)([^\_【]+)(?:\]|】)\s*([\s\S]*?)(?=(?:\[|【)|$)/g;
+    const sectionRegex = /(?:\[|【)([^\]】]+)(?:\]|】)\\s*([\\s\\S]*?)(?=(?:\[|【)|$)/g;
     let match;
     while ((match = sectionRegex.exec(fullText)) !== null) {
         recipes.push({ title: match[1].trim(), content: match[2].trim() });
@@ -38,7 +37,7 @@ function intelligentParse(description, transcript, comments) {
 
 // --- Main Function ---
 export const extractRecipe = onRequest({ cors: true }, async (req, res) => {
-    // 403 에러 방지를 위한 수동 CORS 헤더 설정
+    // CORS 설정을 가장 확실하게 강제합니다.
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -61,7 +60,6 @@ export const extractRecipe = onRequest({ cors: true }, async (req, res) => {
 
         const youtubeClient = youtube({ version: 'v3', auth: youtubeApiKey.value() });
         
-        // 데이터 수집 (기존과 동일)
         const videoResponse = await youtubeClient.videos.list({
             part: ['snippet', 'contentDetails'],
             id: [videoId]
